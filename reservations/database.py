@@ -6,6 +6,7 @@ import os
 
 load_dotenv()
 
+
 # Ambiente de teste (CI)
 if "GITHUB_ACTIONS" in os.environ:
     DATABASE_URL = "postgresql://postgres:postgres@localhost:5432/postgres"
@@ -17,3 +18,11 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 # importante para evitar circular imports
 Base.metadata.create_all(bind=engine) # isso vai criar a tabela se ela não existir
+
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
