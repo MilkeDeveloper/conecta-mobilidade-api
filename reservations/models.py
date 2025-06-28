@@ -1,7 +1,10 @@
 from sqlalchemy import Column, String, DateTime, text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import CheckConstraint
 from datetime import datetime
+
+from sqlalchemy.orm import validates
 
 # SQLAlchemy models base
 Base = declarative_base()
@@ -28,8 +31,23 @@ class BikeReservation(Base):
     status = Column(
         String(20),
         nullable=False,
-        server_default="pending" #valor padrão
+        server_default="pending", #valor padrão
+        default="pending",
     )
+    __table_args__ = (
+        CheckConstraint("status IN ('pending', 'confirmed', 'cancelled')", name="valid_status_check"),
+    )
+
+    def __init__(self, **kwargs):
+        kwargs.setdefault('status', 'pending')  # Garante o default
+        super().__init__(**kwargs)
+
+    @validates('status')
+    def validate_status(self, key, status):
+        valid_statuses = {'pending', 'confirmed', 'cancelled'}
+        if status not in valid_statuses:
+            raise ValueError(f"Status must be one of {valid_statuses}")
+        return status
 
     # metodo para representação em string (debug)
     def __repr__(self):
@@ -37,3 +55,5 @@ class BikeReservation(Base):
                 f"user_id={self.user_id}"
                 f"station={self.station_id}"
                 f"status={self.status}")
+
+

@@ -1,0 +1,11 @@
+# ignore env
+.env
+venv
+
+# Arquivos gerados pelos testes
+.coverage
+coverage.xml
+htmlcov/
+
+# Logs
+*.log

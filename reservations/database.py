@@ -1,12 +1,16 @@
-from os import getenv
-
+from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from .models import Base
 import os
 
-# recupera a URL do Neon das variáveis de ambiente
-DATABASE_URL = os.getenv("DATABASE_URL")
+load_dotenv()
+
+# Ambiente de teste (CI)
+if "GITHUB_ACTIONS" in os.environ:
+    DATABASE_URL = "postgresql://postgres:postgres@localhost:5432/postgres"
+else:
+    DATABASE_URL = os.getenv("DATABASE_URL")  # Neon/Render em produção
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
